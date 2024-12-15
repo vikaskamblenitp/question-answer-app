@@ -1,7 +1,7 @@
 {
-  "name": "ts-boilerplate",
+  "name": "answer-app",
   "version": "1.0.0",
-  "description": "ts-boilerplate supporting postgres, kafka, redis, bull-queue, logger",
+  "description": "question answer app using llm and pg-vector",
   "main": "index.ts",
   "scripts": {
     "start:dev": "cross-env-shell NODE_ENV=development npx babel-node dist/src/index.js",
@@ -12,7 +12,14 @@
     "build": "tsc -p tsconfig.json && babel src --out-dir dist",
     "build:clean": "rm -rf dist && npm run build",
     "build:watch": "tsc -w -p tsconfig.json",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "db": "cross-env-shell db-migrate -m '$INIT_CWD/db/migrations'",
+    "db:create": "npm run db db:create",
+    "db:drop": "npm run db db:drop",
+    "migrate:up": "npm run db up:migrate",
+    "migrate:down": "npm run db down:migrate",
+    "migrate:create": "npm run db create:migrate",
+    "migrate:reset": "npm run db reset:migrate"
   },
   "keywords": [
     "nodejs",
@@ -25,6 +32,8 @@
     "@babel/register": "^7.25.9",
     "bull": "^4.16.4",
     "cross-env": "^7.0.3",
+    "db-migrate": "^0.11.14",
+    "db-migrate-pg": "^1.5.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "express-useragent": "^1.0.15",

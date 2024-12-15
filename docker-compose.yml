@@ -13,17 +13,17 @@ services:
 
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: postgresql
+    container_name: pgvector
     command: ["postgres", "-c", "log_statement=all"]
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: integrations
+      POSTGRES_DB: qa
     volumes:
       - ./.data/docker/postgresql:/var/lib/postgresql
     ports:
-      - "5434:5432"
+      - "5433:5432"
     networks:
       - server_network
     healthcheck:
