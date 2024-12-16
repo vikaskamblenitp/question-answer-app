@@ -2,6 +2,7 @@ import express from "express";
 import routes from "./api/index.js";
 import { pinoHttpLogger } from "#helpers";
 import { jsend } from "#utils";
+import { errorMiddleware } from "#middlewares";
 
 const app = express();
 
@@ -15,6 +16,10 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.use(routes);
+app.use("/api", routes);
+
+app.use(((err, req, res, next) => {
+	errorMiddleware(err, req, res);
+}) as express.ErrorRequestHandler);
 
 export { app };

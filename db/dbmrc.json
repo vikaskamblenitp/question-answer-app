@@ -6,8 +6,7 @@
 		"port": { "ENV": "CONFIG_DB_PORT" },
 		"database": { "ENV": "CONFIG_DB_NAME" },
 		"user": { "ENV": "CONFIG_DB_USER" },
-		"password": { "ENV": "CONFIG_DB_PASSWORD" },
-		"ssl": { "rejectUnauthorized": false }
+		"password": { "ENV": "CONFIG_DB_PASSWORD" }
 	},
 	"production": {
 		"driver": "pg",
