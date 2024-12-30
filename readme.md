@@ -34,17 +34,35 @@ Welcome to the Question Answer Application! This project is designed to provide 
     ```
   - Update `.env` and `.env.local` with your configuration, including `CONFIG_OPEN_API_KEY`.
 
-3. **Start the application**:
+3. **Run required containers for the project**:
   ```sh
   docker-compose up -d
   ```
 
+4. **Scripts for Database migrations**:
+  ```sh
+  npm run migrate:up ## up the db migrations
+  npm run migrate:create <file_name> ## file name
+  npm run migrate:down ## down the script
+  ```
+
+1. **Start the application**:
+  ```sh
+  npm run dev ## run the application
+  ```
+
 ### API Endpoints
 
-- **Login**: `/api/login`
-- **Register**: `/api/register`
+- **Login**: `/api/v1/users/login`
+- **Register**: `/api/v1/users/register`
 
 These endpoints are temporary and will be replaced with Google SSO login in future updates.
+
+- **PDF processing**: `/api/v1/documents`
+- **Processing status and details**: `/api/v1/documents/:documentID`
+- **Get answers for question on a file**: `/api/v1/qa/file/:fileID/answer`
+- **Get all Q&A history for a file**: `/api/v1/file/:fileID`
+
 
 ## Future Enhancements
 

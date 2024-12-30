@@ -72,11 +72,11 @@ class Documents {
   }
 
   /**
-   * @param fileID : id of the file
+   * @param documentID : id of the file
    * @returns {Object} details of the file
    */
-  async getFileDetails(fileID: paramsDocumentIDType): Promise<Record<string, any>> {
-    const getFilenameResult = await sqlQuery({ sql: `SELECT * FROM data_files WHERE id = $1`, values: [fileID] });
+  async getFileDetails(documentID: paramsDocumentIDType): Promise<Record<string, any>> {
+    const getFilenameResult = await sqlQuery({ sql: `SELECT * FROM data_files WHERE id = $1`, values: [documentID] });
 
     if (getFilenameResult.rows.length === 0) {
       throw new DocumentsApiError(`File not found`, StatusCodes.NOT_FOUND, ERROR_CODES.NOT_FOUND);
