@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { catchAsync } from "#utils/index.js";
 import { qa } from "./qa";
+import { AnswerSchemaInput } from "./schema";
 
 export const controller = {
   getQuestionAnswers: catchAsync(async (req: Request, res: Response) => {
@@ -9,7 +10,8 @@ export const controller = {
   }),
 
   answerQuestion: catchAsync(async (req: Request, res: Response) => {
-    const response = await qa.answerQuestion(req.body);
+    const { params, body } = req;
+    const response = await qa.answerQuestion({ params, body } as AnswerSchemaInput);
     res.jsend.success(response);
   })
 }

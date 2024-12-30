@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { controller as api } from "./controller.js";
-import { methodNotAllowed } from "#middlewares";
+import { methodNotAllowed, validateTypedSchema } from "#middlewares";
+import { answerSchema } from "./schema.js";
 
 const router = Router();
 
 router.get("/qas", api.getQuestionAnswers);
 
-router.route("/answer").post(api.answerQuestion).all(methodNotAllowed);
+router.route("/qa/file/:fileID/answer").post(validateTypedSchema(answerSchema), api.answerQuestion).all(methodNotAllowed);
 
 export default router;

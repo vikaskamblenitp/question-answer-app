@@ -1,12 +1,15 @@
 import { generateEmbeddings, getAIGeneratedAnswer, sqlQuery } from "#helpers";
+import { AnswerSchemaInput } from "./schema";
 
 class QA {
   async getQuestionAnswers() {
     await new Promise((resolve) => { resolve("Answer") });
   }
 
-  async answerQuestion(body: { question: string, file_id: string }) {
-    const { question, file_id: fileID } = body;
+  async answerQuestion(payload: AnswerSchemaInput) {
+    const { question } = payload.body;
+
+    const {fileID} = payload.params;
 
     const userID = "06cca4fa-fba8-408d-b274-e6e10d156041";
 
