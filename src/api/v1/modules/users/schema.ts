@@ -6,6 +6,12 @@ export const schema = {
       first_name: z.string().trim().nonempty(),
       last_name: z.string().trim().nonempty(),
     })
+  }),
+
+  loginUser: z.object({
+    body: z.object({
+      email: z.string().email().trim(),
+    }).strict()
   })
 }
 
