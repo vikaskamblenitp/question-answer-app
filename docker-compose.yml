@@ -40,7 +40,6 @@ services:
       - ./.data/docker/minio:/data
     ports:
       - "9002:9000"
-      - "9003:9001"
     networks:
       - server_network
 
