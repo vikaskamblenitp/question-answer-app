@@ -21,8 +21,7 @@ export const schema = {
       offset: z.number().int().positive().default(0),
       filter: z.object({
         name: z.string().optional(),
-        is_processed: z.string().optional(),
-        uploaded_by: z.string().uuid().optional(),
+        is_processed: z.string().optional()
       }),
       sort: z.object({
         name: z.enum(["asc", "desc"]).optional(),

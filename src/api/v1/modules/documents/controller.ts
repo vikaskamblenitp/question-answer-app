@@ -8,7 +8,7 @@ export const controller = {
   }),
 
   getDocuments: catchAsync(async (req: any, res: any) => {
-    const response = await documents.getDocuments(req.query);
+    const response = await documents.getDocuments(req.query, res.locals.user);
     res.jsend.success(response);
   }),
 

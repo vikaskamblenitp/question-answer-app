@@ -4,6 +4,7 @@ import BullQueue from "#helpers/bull-queue";
 import { minioClient } from "#helpers/minio";
 import { Express } from "express";
 import { paramsDocumentIDType, queryGetDocumentsType } from "./schema";
+import { localsUser } from "#types";
 
 class Documents {
   /**
@@ -33,8 +34,13 @@ class Documents {
    * @param query : query parameters for filtering and sorting
    * @returns 
    */
-  async getDocuments(query: queryGetDocumentsType) {
-    const { limit = 10, offset = 0, filter, sort } = query;
+  async getDocuments(query: queryGetDocumentsType, userInfo: localsUser) {
+    const { limit = 10, offset = 0, sort } = query;
+
+    const filter = {
+      ...query.filter,
+      uploaded_by: userInfo.user_id
+    };
 
     const queryValues = [limit, offset];
 
