@@ -1,0 +1,1 @@
+ALTER TABLE IF EXISTS data_users DROP CONSTRAINT user_email_unique;
