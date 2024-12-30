@@ -12,8 +12,8 @@ class Documents {
    * @param file : pdf file of which embeddings are to be generated
    * @returns 
    */
-  async uploadFile(file: Express.Multer.File) {
-    const userID = "06cca4fa-fba8-408d-b274-e6e10d156041";
+  async uploadFile(file: Express.Multer.File, userInfo: localsUser) {
+    const userID = userInfo.user_id;
     const { buffer, ...rest } = file;
 
     const data = await minioClient.uploadFile(BUCKETS.DOCUMENT, file.originalname, buffer);

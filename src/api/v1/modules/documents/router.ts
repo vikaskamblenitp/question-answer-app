@@ -6,16 +6,16 @@ import { schema } from "./schema";
 const router = Router();
 
 router.route("/documents")
-  .post(externalUploadMiddleware("file"), validateTypedSchema(schema.uploadFileSchema), api.uploadFile)
+  .post(validateUser, externalUploadMiddleware("file"), validateTypedSchema(schema.uploadFileSchema), api.uploadFile)
   .get(validateUser, validateTypedSchema(schema.getDocumentsSchema), api.getDocuments)
   .all(methodNotAllowed);
 
 router.route("/documents/:documentID")
-  .get(validateTypedSchema(schema.getFileDetailsSchema), api.getFileDetails)
+  .get(validateUser, validateTypedSchema(schema.getFileDetailsSchema), api.getFileDetails)
   .all(methodNotAllowed);
   
 router.route("/documents/:documentID/download")
-  .post(validateTypedSchema(schema.downloadFileSchema), api.downloadFile)
+  .post(validateUser, validateTypedSchema(schema.downloadFileSchema), api.downloadFile)
   .all(methodNotAllowed);
 
 export default router;

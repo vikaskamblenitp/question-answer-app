@@ -11,7 +11,7 @@ export const controller = {
 
   answerQuestion: catchAsync(async (req: Request, res: Response) => {
     const { params, body } = req;
-    const response = await qa.answerQuestion({ params, body } as AnswerSchemaInput);
+    const response = await qa.answerQuestion({ params, body } as AnswerSchemaInput, res.locals.user);
     res.jsend.success(response);
   })
 }
