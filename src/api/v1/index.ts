@@ -5,8 +5,8 @@ import documentsRoutes from "./modules/documents/router";
 
 const router = Router();
 
-router.use(qaRoutes);
-router.use(userRoutes);
+router.use("/qa", qaRoutes);
+router.use("/users", userRoutes);
 router.use(documentsRoutes);
 
 export default router;

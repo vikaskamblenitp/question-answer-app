@@ -1,10 +1,12 @@
-import { BUCKETS, EVENTS, QUEUES } from "#constants";
+import { BUCKETS, ERROR_CODES, EVENTS, QUEUES } from "#constants";
 import { logger, sqlQuery } from "#helpers";
 import BullQueue from "#helpers/bull-queue";
 import { minioClient } from "#helpers/minio";
 import { Express } from "express";
 import { paramsDocumentIDType, queryGetDocumentsType } from "./schema";
 import { localsUser } from "#types";
+import { DocumentsApiError } from "./error";
+import { StatusCodes } from "http-status-codes";
 
 class Documents {
   /**
@@ -24,7 +26,9 @@ class Documents {
 
     const documentQueue = new BullQueue(QUEUES.DOCUMENTS);
 
-    await documentQueue.addJob(EVENTS.GENERATE_EMBEDDINGS, { file: rows[0].id, name: file.originalname }, { jobId: rows[0].id, removeOnComplete: true, removeOnFail: false });
+    const job = await documentQueue.addJob(EVENTS.GENERATE_EMBEDDINGS, { file: rows[0].id, name: file.originalname }, { jobId: rows[0].id, removeOnComplete: true, removeOnFail: false });
+
+    logger.info(`Job scheduled for processing the pdf file with job id: ${job.id}`);
     
     return { file: data, message: "File uploaded successfully" };
   }
@@ -62,22 +66,20 @@ class Documents {
       LEFT JOIN data_users du ON df.uploaded_by = du.id
      ${filterQuery} ${sortQuery} LIMIT $1 OFFSET $2`;
 
-     logger.info(getDocumentsQuery);
-
     const { rows } = await sqlQuery({ sql: getDocumentsQuery, values: queryValues });
 
-    return {records: rows };
+    return { records: rows };
   }
 
   /**
    * @param fileID : id of the file
    * @returns {Object} details of the file
    */
-  async getFileDetails(fileID: paramsDocumentIDType) {
+  async getFileDetails(fileID: paramsDocumentIDType): Promise<Record<string, any>> {
     const getFilenameResult = await sqlQuery({ sql: `SELECT * FROM data_files WHERE id = $1`, values: [fileID] });
 
     if (getFilenameResult.rows.length === 0) {
-      throw new Error(`File not found`);
+      throw new DocumentsApiError(`File not found`, StatusCodes.NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
 
     return getFilenameResult.rows[0];

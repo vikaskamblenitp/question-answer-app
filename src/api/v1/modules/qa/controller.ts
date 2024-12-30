@@ -4,8 +4,8 @@ import { qa } from "./qa";
 import { AnswerSchemaInput } from "./schema";
 
 export const controller = {
-  getQuestionAnswers: catchAsync(async (req: Request, res: Response) => {
-    const response = await qa.getQuestionAnswers();
+  getAllQuestionAnswers: catchAsync(async (req: Request, res: Response) => {
+    const response = await qa.getAllQuestionAnswers(req.params as any, req.query as any, res.locals.user);
     res.jsend.success(response);
   }),
 
