@@ -7,8 +7,18 @@ export const controller = {
     res.jsend.success(response);
   }),
 
-  getFile: catchAsync(async (req: any, res: any) => {
-    const response = await documents.getFile(req.query.fileName);
+  getDocuments: catchAsync(async (req: any, res: any) => {
+    const response = await documents.getDocuments(req.query);
+    res.jsend.success(response);
+  }),
+
+  getFileDetails: catchAsync(async (req: any, res: any) => {
+    const response = await documents.getFileDetails(req.params);
+    res.jsend.success(response);
+  }),
+
+  downloadFile: catchAsync(async (req: any, res: any) => {
+    const response = await documents.downloadFile(req.params);
     res.setHeader("Content-Type", "application/pdf");
     response.pipe(res);
   }),

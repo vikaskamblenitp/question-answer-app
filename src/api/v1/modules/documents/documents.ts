@@ -1,10 +1,16 @@
 import { BUCKETS, EVENTS, QUEUES } from "#constants";
-import { sqlQuery } from "#helpers";
+import { logger, sqlQuery } from "#helpers";
 import BullQueue from "#helpers/bull-queue";
 import { minioClient } from "#helpers/minio";
 import { Express } from "express";
+import { paramsDocumentIDType, queryGetDocumentsType } from "./schema";
 
 class Documents {
+  /**
+   * @description Function to upload pdf file and extract embeddings on which q&a can be performed latter
+   * @param file : pdf file of which embeddings are to be generated
+   * @returns 
+   */
   async uploadFile(file: Express.Multer.File) {
     const userID = "06cca4fa-fba8-408d-b274-e6e10d156041";
     const { buffer, ...rest } = file;
@@ -22,7 +28,68 @@ class Documents {
     return { file: data, message: "File uploaded successfully" };
   }
 
-  async getFile(fileName: string) {
+  /**
+   * @description Function to get list of documents
+   * @param query : query parameters for filtering and sorting
+   * @returns 
+   */
+  async getDocuments(query: queryGetDocumentsType) {
+    const { limit = 10, offset = 0, filter, sort } = query;
+
+    const queryValues = [limit, offset];
+
+    let filterQuery = "";
+    let sortQuery = "";
+
+     if (filter) {
+      filterQuery = `WHERE ${Object.keys(filter).map((key, index) => {
+        queryValues.push(filter[key]);
+        return `${index ? 'AND' : ''} ${key} = $${index+3}`;
+     }).join(" ")}`;
+     }
+
+     if (sort) {
+      sortQuery = `ORDER BY ${Object.keys(sort).map(key => `df.${key} ${sort[key]}`).join(", ")}`;
+     }
+
+     const getDocumentsQuery = `SELECT * FROM data_files df
+      LEFT JOIN data_users du ON df.uploaded_by = du.id
+     ${filterQuery} ${sortQuery} LIMIT $1 OFFSET $2`;
+
+     logger.info(getDocumentsQuery);
+
+    const { rows } = await sqlQuery({ sql: getDocumentsQuery, values: queryValues });
+
+    return {records: rows };
+  }
+
+  /**
+   * @param fileID : id of the file
+   * @returns {Object} details of the file
+   */
+  async getFileDetails(fileID: paramsDocumentIDType) {
+    const getFilenameResult = await sqlQuery({ sql: `SELECT * FROM data_files WHERE id = $1`, values: [fileID] });
+
+    if (getFilenameResult.rows.length === 0) {
+      throw new Error(`File not found`);
+    }
+
+    return getFilenameResult.rows[0];
+  }
+
+  /**
+   * @description Function to download pdf file
+   * @param {string} fileID : id of the file
+   * @returns stream of the file
+   */
+  async downloadFile(fileID: paramsDocumentIDType) {
+    const getFilenameResult = await sqlQuery({ sql: `SELECT name FROM data_files WHERE id = $1`, values: [fileID] });
+
+    if (getFilenameResult.rows.length === 0) {
+      throw new Error(`File not found`);
+    }
+
+    const fileName = getFilenameResult.rows[0].name;
     const data = await minioClient.getFile(BUCKETS.DOCUMENT, fileName);
     return data;
   }
