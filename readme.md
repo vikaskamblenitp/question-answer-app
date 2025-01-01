@@ -2,6 +2,8 @@
 
 Welcome to the Question Answer Application! This project is designed to provide a robust and scalable solution for generating and answering questions using advanced AI models. The application leverages a variety of technologies to ensure efficient data handling, storage, and processing.
 
+This project also includes a rate limiter based on the token bucket algorithm using Redis. This ensures fair usage and prevents abuse of the API by limiting the number of requests a user can make within a certain time frame for resource intensive APIs.
+
 ## Tech Stack
 
 - **Langchain**: For building and managing the question-answering logic.
@@ -10,6 +12,7 @@ Welcome to the Question Answer Application! This project is designed to provide 
 - **Minio**: For file uploads and storage.
 - **OpenAI Model**: For generating embeddings and answering questions.
 - **Docker**: For containerization and easy deployment.
+- **Redis**: For rate limiting
 
 ## Getting Started
 
@@ -67,7 +70,6 @@ These endpoints are temporary and will be replaced with Google SSO login in futu
 ## Future Enhancements
 
 - **Google SSO Login**: To provide a seamless and secure login experience.
-- **Rate Limiting**: To ensure fair usage and prevent abuse of the API.
 
 ## Contributing
 
