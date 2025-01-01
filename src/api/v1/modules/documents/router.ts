@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { controller as api } from "./controller";
-import { externalUploadMiddleware, methodNotAllowed, validateTypedSchema, validateUser } from "#middlewares";
+import { externalUploadMiddleware, methodNotAllowed, rateLimiter, validateTypedSchema, validateUser } from "#middlewares";
 import { schema } from "./schema";
 
 const router = Router();
 
 router.route("/documents")
-  .post(validateUser, externalUploadMiddleware("file"), validateTypedSchema(schema.uploadFileSchema), api.uploadFile)
+  .post(validateUser, externalUploadMiddleware("file"), validateTypedSchema(schema.uploadFileSchema), rateLimiter, api.uploadFile)
   .get(validateUser, validateTypedSchema(schema.getDocumentsSchema), api.getDocuments)
   .all(methodNotAllowed);
 

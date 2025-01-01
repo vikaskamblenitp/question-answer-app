@@ -1,0 +1,4 @@
+export const RATE_LIMIT_CONFIG = {
+  WINDOW_SIZE_IN_SECONDS: 60,
+  MAX_TOKENS: 5,
+};

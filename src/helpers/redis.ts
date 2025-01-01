@@ -185,6 +185,10 @@ export const redis = {
 		return true;
 	},
 
+	hsetMultiple: async (key: string, fields: Record<string, string | number>) => {
+		await client.hset(key, fields);
+	},
+
 	hgetall: async (rediskey: RedisKey): Promise<Record<string, string | object>> => {
 		let result = await client.hgetall(rediskey);
 		result = Object.keys(result).reduce((acc, key) => {
@@ -201,6 +205,10 @@ export const redis = {
 		}, {});
 
 		return result;
+	},
+
+	hincrby: async (key: string, field: string, value: number) => {
+		await client.hincrby(key, field, value);
 	},
 
 	exists: async (key: RedisKey): Promise<boolean> => {
