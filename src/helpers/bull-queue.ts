@@ -1,7 +1,7 @@
 import { envConfig } from "#configs/index";
 import Queue, { type CronRepeatOptions, type EveryRepeatOptions, type Queue as IQueue, type Job, type JobId, type JobOptions } from "bull";
 import { type ClusterNode } from "ioredis";
-import { createClusterClient, redisConfig } from "./redis";
+import { createClusterClient } from "./redis";
 import { logger } from "./logger";
 
 type BullQueueJobStatus = {
@@ -36,8 +36,8 @@ const generateQueueOptions = (): Partial<Queue.QueueOptions> => {
 		prefix: "{bull}"
 	} as Partial<Queue.QueueOptions>;
 
-	if (["localhost", "127.0.0.1"].includes(envConfig.REDIS_HOST ?? "")) {
-		config.redis = redisConfig as any;
+	if (envConfig.REDIS_LOCAL_SETUP) {
+		config.redis = { host: envConfig.REDIS_HOST, port: parseInt(envConfig.REDIS_PORT) };
 	} else {
 		config.createClient = () => {
 			const client = createClusterClient(clusterNode, clusterOptions);

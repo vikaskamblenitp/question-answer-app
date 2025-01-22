@@ -12,6 +12,6 @@ RUN npm ci --ignore-scripts
 
 COPY . .
 
-EXPOSE 3001
+EXPOSE 3000
 
-CMD [ "npm", "run", "start:prod" ]
+CMD [ "npm", "run", "dev" ]

@@ -16,7 +16,7 @@ class Documents {
    */
   async uploadFile(file: Express.Multer.File, userInfo: localsUser) {
     const userID = userInfo.user_id;
-    const { buffer, ...rest } = file;
+    const { buffer, mimetype, ...rest } = file;
 
     const data = await minioClient.uploadFile(BUCKETS.DOCUMENT, file.originalname, buffer);
 
@@ -26,7 +26,12 @@ class Documents {
 
     const documentQueue = new BullQueue(QUEUES.DOCUMENTS);
 
-    const job = await documentQueue.addJob(EVENTS.GENERATE_EMBEDDINGS, { file: rows[0].id, name: file.originalname }, { jobId: rows[0].id, removeOnComplete: true, removeOnFail: false });
+    const job = await documentQueue.addJob(EVENTS.GENERATE_EMBEDDINGS, { 
+      file: rows[0].id, 
+      name: file.originalname, 
+      file_buffer: buffer,
+      mime_type: mimetype
+    }, { jobId: rows[0].id, removeOnComplete: true, removeOnFail: false });
 
     logger.info(`Job scheduled for processing the pdf file with job id: ${job.id}`);
     
