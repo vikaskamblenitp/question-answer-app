@@ -1,6 +1,9 @@
 import { sqlQuery } from "#helpers";
 import { generateJwtToken } from "#utils";
+import { UsersApiError } from "./error";
 import { RegisterUserSchema } from "./schema";
+import { ERROR_CODES } from "#constants";
+import { StatusCodes } from "http-status-codes";
 
 class Users {
   /**
@@ -31,6 +34,9 @@ class Users {
     const selectUserQuery = `SELECT id, first_name, last_name, email FROM data_users WHERE email = $1`;
 
     const { rows } = await sqlQuery({ sql: selectUserQuery, values: [body.email] });
+    if (rows.length === 0) {
+      throw new UsersApiError("User not found", StatusCodes.NOT_FOUND, ERROR_CODES.NOT_FOUND);
+    }
     const { id, first_name, last_name, email } = rows[0];
     const accessToken = generateJwtToken({ user_id: id, first_name, last_name, email });
 
