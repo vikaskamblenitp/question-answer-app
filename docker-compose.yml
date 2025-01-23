@@ -1,17 +1,37 @@
 version: "3.7"
 
 services:
-  # app:
-  #   image: node:18-alpine
-  #   command: sh -c "npm run dev"
-  #   container_name: api
-  #   ports:
-  #     - 3000:3000
-  #   working_dir: /app
-  #   volumes:
-  #     - ./:/app
+  app:
+    container_name: api
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.local
+    depends_on:
+      - db
+      - minio
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=development
+      - CONFIG_DB_HOST=db
+      - CONFIG_DB_PORT=5432
+      - CONFIG_DB_USER=postgres
+      - CONFIG_DB_PASSWORD=admin
+      - CONFIG_DB_NAME=postgres
+      - CONFIG_DB_MAX_CONNECTIONS=20
+      - CONFIG_REDIS_HOST=redis
+      - CONFIG_REDIS_PORT=6379
+      - CONFIG_REDIS_EC_CLUSTER=false
+      - CONFIG_REDIS_DISABLE_TLS=true
+      - CONFIG_REDIS_DISABLE_TLS_REJECT_UNAUTHORIZED=false
+      - CONFIG_REDIS_RECONNECT_MAX_WAIT=3000
+      - CONFIG_REDIS_LOCAL_SETUP=true
+    networks:
+      - server_network
 
-  postgres:
+  db:
     image: pgvector/pgvector:pg16
     container_name: pgvector
     command: ["postgres", "-c", "log_statement=all"]
@@ -19,7 +39,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: qa
+      POSTGRES_DB: postgres
     volumes:
       - ./.data/docker/postgresql:/var/lib/postgresql
     ports:
@@ -44,59 +64,11 @@ services:
     networks:
       - server_network
 
-  # kafka:
-  #   image: confluentinc/cp-kafka:latest
-  #   depends_on:
-  #     - zookeeper
-  #   restart: always
-  #   container_name: kafka
-  #   ports:
-  #     - 9091:9091
-  #   environment:
-  #     KAFKA_ADVERTISED_HOST_NAME: localhost
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:19091,PLAINTEXT_HOST://localhost:9091
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-  #     KAFKA_BROKER_ID: 1
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #   volumes:
-  #     - ./.data/docker/kafka/data:/var/lib/kafka/data
-  #   networks:
-  #     - server_network
-
-  # zookeeper:
-  #   image: confluentinc/cp-zookeeper:latest
-  #   restart: always
-  #   container_name: zookeeper
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: "2181"
-  #   ports:
-  #     - 2181:2181
-  #   volumes:
-  #     - ./.data/docker/zookeeper/data:/var/lib/zookeeper/data
-  #     - ./.data/docker/zookeeper/datalog:/var/lib/zookeeper/datalog
-  #   networks:
-  #     - server_network
-
-  # kowl:
-  #   image: quay.io/cloudhut/kowl:master
-  #   container_name: kowl
-  #   restart: "no"
-  #   depends_on:
-  #     - kafka
-  #   ports:
-  #     - 8080:8080
-  #   environment:
-  #     KAFKA_BROKERS: kafka:19091
-  #     KAFKA_TLS_ENABLED: "false"
-  #   networks:
-  #     - server_network
 
   redis:
     image: redis/redis-stack:latest
     restart: always
-    container_name: redis-stack
+    container_name: redis-stack2
     ports:
       - 6379:6379
     volumes:

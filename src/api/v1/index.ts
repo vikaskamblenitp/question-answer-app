@@ -7,6 +7,6 @@ const router = Router();
 
 router.use("/qa", qaRoutes);
 router.use("/users", userRoutes);
-router.use(documentsRoutes);
+router.use("/documents", documentsRoutes);
 
 export default router;

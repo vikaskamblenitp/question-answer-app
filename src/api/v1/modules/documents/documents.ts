@@ -35,7 +35,7 @@ class Documents {
 
     logger.info(`Job scheduled for processing the pdf file with job id: ${job.id}`);
     
-    return { file: data, message: "File uploaded successfully" };
+    return { file: { id: rows[0].id }, message: "File uploaded successfully" };
   }
 
   /**
