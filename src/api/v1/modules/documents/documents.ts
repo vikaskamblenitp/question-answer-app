@@ -80,7 +80,7 @@ class Documents {
    * @param documentID : id of the file
    * @returns {Object} details of the file
    */
-  async getFileDetails(documentID: paramsDocumentIDType): Promise<Record<string, any>> {
+  async getFileDetails({ documentID }: paramsDocumentIDType): Promise<Record<string, any>> {
     const getFilenameResult = await sqlQuery({ sql: `SELECT * FROM data_files WHERE id = $1`, values: [documentID] });
 
     if (getFilenameResult.rows.length === 0) {
