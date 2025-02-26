@@ -51,7 +51,11 @@ class QA {
     const userID = userInfo.user_id;
 
     // check file exist or not for the user
-    await this._checkFileExistsForUser(fileID, userID);
+    const file = await this._checkFileExistsForUser(fileID, userID);
+
+    if (!file.is_processed) {
+      throw new QaApiError("File is not processed yet", StatusCodes.BAD_REQUEST, ERROR_CODES.INVALID);
+    }
 
     // generate embeddings for question
     const questionEmbeddings = await generateEmbeddings(question);
