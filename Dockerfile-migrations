@@ -25,7 +25,7 @@ COPY .db-migraterc .db-migraterc
 COPY ./db/migrations/scripts/migration_entrypoint.sh ./
 
 # Check whether the database exists
-CMD ["/bin/bash", "/migration_entrypoint.sh"]
+# CMD ["/bin/bash", "/migration_entrypoint.sh"]
 
 # Run DB migrations 
-CMD [ "npm", "run", "migrate:up" ]
+# CMD [ "npm", "run", "migrate:up" ]

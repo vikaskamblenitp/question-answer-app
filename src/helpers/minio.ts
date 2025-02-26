@@ -10,7 +10,7 @@ class MinioClient {
     this.client = new Minio.Client({
       endPoint: envConfig.MINIO_ENDPOINT as string,
       port: envConfig.MINIO_PORT,
-      useSSL: true,
+      useSSL: false,
       accessKey: envConfig.MINIO_ACCESS_KEY as string,
       secretKey: envConfig.MINIO_SECRET_KEY as string,
     });
