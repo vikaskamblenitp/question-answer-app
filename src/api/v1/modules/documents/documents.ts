@@ -95,8 +95,8 @@ class Documents {
    * @param {string} fileID : id of the file
    * @returns stream of the file
    */
-  async downloadFile(fileID: paramsDocumentIDType) {
-    const getFilenameResult = await sqlQuery({ sql: `SELECT name FROM data_files WHERE id = $1`, values: [fileID] });
+  async downloadFile({ documentID }: paramsDocumentIDType) {
+    const getFilenameResult = await sqlQuery({ sql: `SELECT name FROM data_files WHERE id = $1`, values: [documentID] });
 
     if (getFilenameResult.rows.length === 0) {
       throw new Error(`File not found`);
