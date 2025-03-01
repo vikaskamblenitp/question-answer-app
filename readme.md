@@ -4,6 +4,9 @@ Welcome to the Question Answer Application! This project is designed to provide 
 
 This project also includes a rate limiter based on the token bucket algorithm using Redis. This ensures fair usage and prevents abuse of the API by limiting the number of requests a user can make within a certain time frame for resource intensive APIs.
 
+## Architecture Diagram
+![Architecture Diagram](./assets/Architecture.png)
+
 ## Tech Stack
 
 - **LangChain**: Framework for developing applications powered by large language models (LLMs).
