@@ -1,5 +1,5 @@
 import { envConfig } from '#configs';
-import { connectDb, logger, redisConfig, redisConnect } from '#helpers';
+import { connectDb, db, logger, redisConfig, redisConnect } from '#helpers';
 import { minioClient } from '#helpers/minio.js';
 import { initWorkers } from '#workers/';
 import { app } from './app.js';
@@ -13,6 +13,8 @@ const init = async () => {
 	await redisConnect(redisConfig, logger);
 
 	await minioClient.init();
+
+	await db.init();
 
 	initWorkers();
 	
