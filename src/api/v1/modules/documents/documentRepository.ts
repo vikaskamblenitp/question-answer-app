@@ -24,6 +24,14 @@ export class DocumentRepository {
     return result[0];
   }
 
+  async getMatchedContent(fileID: string, questionEmbeddings: number[]) {
+    const getMostRelevantContextQuery = `SELECT content, embeddings, embeddings <#> ARRAY[${questionEmbeddings}]::vector as similarity FROM data_file_embeddings
+        WHERE file_id = $1 ORDER BY embeddings <#> ARRAY[${questionEmbeddings}]::vector LIMIT 5`;
+    
+    const result = await db.query<{ content: string }>({sql: getMostRelevantContextQuery, values: [fileID] });
+    return result;
+  }
+
   async getDocuments(limit: number, offset: number, filter: Record<string, any>, sort?: Record<string, "asc" | "desc">) {
     const queryValues = [limit, offset];
 

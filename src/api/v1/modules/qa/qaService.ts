@@ -1,4 +1,4 @@
-import { generateEmbeddings, getAIGeneratedAnswer, sqlQuery, sqlTransaction } from "#helpers";
+import { generateEmbeddings, getAIGeneratedAnswer } from "#helpers";
 import { localsUser } from "#types";
 import { StatusCodes } from "http-status-codes";
 import { QaApiError } from "./error";
@@ -6,12 +6,15 @@ import { QuestionSchemaInput, GetAllQuestionAnswersParams, GetAllQuestionAnswers
 import { ERROR_CODES } from "#constants";
 import { QARepository } from "./qaRepository";
 import { IQuestionAnswer } from "./types";
+import { DocumentRepository } from "../documents/documentRepository";
 
 class QAService {
-  private qaRepository: QARepository
+  private qaRepository: QARepository;
+  private documentRepository: DocumentRepository;
   
   constructor() {
     this.qaRepository = new QARepository();
+    this.documentRepository = new DocumentRepository();
   }
 
   /**
@@ -75,13 +78,10 @@ class QAService {
 
 
     // get most relevant context from data_files embeddings
-    const getMostRelevantContextQuery = `SELECT content, embeddings, embeddings <#> ARRAY[${questionEmbeddings}]::vector as similarity FROM data_file_embeddings
-    WHERE file_id = $1 ORDER BY embeddings <#> ARRAY[${questionEmbeddings}]::vector LIMIT 5`;
-
-    const [getMostRelevantContextResult] = await sqlTransaction([getMostRelevantContextQuery], [[fileID]]);
+    const getMostRelevantContextResult = await this.documentRepository.getMatchedContent(fileID, questionEmbeddings);
 
     // format the context
-    const context = getMostRelevantContextResult.rows.map((row: any) => row.content).join("\n");
+    const context = getMostRelevantContextResult.map((row: any) => row.content).join("\n");
 
     // get answer from model
     const aiAnswer = await getAIGeneratedAnswer(context, question);
@@ -93,13 +93,12 @@ class QAService {
   }
 
   async _checkFileExistsForUser(fileID: string, userID: string) {
-    const query = `SELECT * FROM data_files WHERE id = $1 AND uploaded_by = $2`;
-    const { rows } = await sqlQuery({ sql: query, values: [fileID, userID] });
-    if (rows.length === 0) {
+    const document = await this.documentRepository.documentById(fileID);
+    if (!document || (document && document.uploaded_by !== userID)) {
       throw new QaApiError("File not found for the user", StatusCodes.BAD_REQUEST, ERROR_CODES.INVALID);
     }
 
-    return rows[0];
+    return document;
   }
 };
 
