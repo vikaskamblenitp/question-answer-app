@@ -1,6 +1,5 @@
 import z from "zod";
 
-
 export const schema = {
   getAllQuestionAnswers: z.object({
     params: z.object({
@@ -12,9 +11,9 @@ export const schema = {
     })
   }),
 
-  answerSchema: z.object({
+  questionSchema: z.object({
     body: z.object({
-      question: z.string().nonempty(),
+      question: z.string().nonempty()
     }).strict(),
     params: z.object({
       fileID: z.string().uuid().nonempty()
@@ -22,6 +21,6 @@ export const schema = {
   })
 }
 
-export type AnswerSchemaInput = z.infer<typeof schema.answerSchema>;
+export type QuestionSchemaInput = z.infer<typeof schema.questionSchema>;
 export type GetAllQuestionAnswersParams = z.infer<typeof schema.getAllQuestionAnswers>["params"];
 export type GetAllQuestionAnswersQuery = z.infer<typeof schema.getAllQuestionAnswers>["query"];

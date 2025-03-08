@@ -53,7 +53,7 @@ class Database {
 
   async query<T>(query: {
     sql: string;
-    values: Array<string | number | boolean>;
+    values?: Array<string | number | boolean>;
   }) {
     const client = await this.pool.connect();
     try {
@@ -70,7 +70,7 @@ class Database {
   }
 
   async transaction(
-    queries: { sql: string; values: Array<string | number | boolean> }[]
+    queries: { sql: string; values?: Array<string | number | boolean> }[]
   ) {
     const client = await this.pool.connect();
     try {

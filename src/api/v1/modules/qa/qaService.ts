@@ -2,10 +2,18 @@ import { generateEmbeddings, getAIGeneratedAnswer, sqlQuery, sqlTransaction } fr
 import { localsUser } from "#types";
 import { StatusCodes } from "http-status-codes";
 import { QaApiError } from "./error";
-import { AnswerSchemaInput, GetAllQuestionAnswersParams, GetAllQuestionAnswersQuery } from "./schema";
+import { QuestionSchemaInput, GetAllQuestionAnswersParams, GetAllQuestionAnswersQuery } from "./schema";
 import { ERROR_CODES } from "#constants";
+import { QARepository } from "./qaRepository";
+import { IQuestionAnswer } from "./types";
 
-class QA {
+class QAService {
+  private qaRepository: QARepository
+  
+  constructor() {
+    this.qaRepository = new QARepository();
+  }
+
   /**
    * @description API to get all question answers asked for the file
    * @param {GetAllQuestionAnswersParams} params : params of the request
@@ -16,20 +24,16 @@ class QA {
    * @param userInfo 
    * @returns 
    */
-  async getAllQuestionAnswers(params: GetAllQuestionAnswersParams, queryParams: GetAllQuestionAnswersQuery, userInfo: localsUser): Promise<{ records: Record<string, string>[]}> {
+  async getAllQuestionAnswers(params: GetAllQuestionAnswersParams, queryParams: GetAllQuestionAnswersQuery, userInfo: localsUser): Promise<{ records: IQuestionAnswer[]}> {
     const { fileID } = params;
 
+    // TODO: we should update it the pagination logic by accepting the page no
     const { limit, offset } = queryParams;
     
     // NOTE: no need to check if the file exist for user because the following query will return empty array as records
-    const query = `SELECT question, answer FROM data_qas
-      INNER JOIN data_files ON data_files.id = data_qas.file_id
-      LEFT JOIN data_users ON data_users.id = data_files.uploaded_by
-      WHERE file_id = $1 AND uploaded_by = $2
-      LIMIT $3 OFFSET $4`;
-
-    const { rows } = await sqlQuery({ sql: query, values: [fileID, userInfo.user_id, limit, offset] });
-
+    const rows = await this.qaRepository.getQAs(fileID, userInfo.user_id, limit, offset);
+    
+    // TODO: Ideally we should also pass total count and current page
     return {
       records: rows
     };
@@ -43,9 +47,8 @@ class QA {
    * @param userInfo 
    * @returns 
    */
-  async answerQuestion(payload: AnswerSchemaInput, userInfo: localsUser) {
-    const { question } = payload.body;
-
+  async answerQuestion(payload: QuestionSchemaInput, userInfo: localsUser) {
+    const { question } = payload.body; 
     const { fileID } = payload.params;
 
     const userID = userInfo.user_id;
@@ -57,17 +60,25 @@ class QA {
       throw new QaApiError("File is not processed yet", StatusCodes.BAD_REQUEST, ERROR_CODES.INVALID);
     }
 
+    // TODO: save the question first then update the embeddings of the question
+
     // generate embeddings for question
     const questionEmbeddings = await generateEmbeddings(question);
 
-    // store embeddings in data_qas table
-    const insertQuestionQuery = `INSERT INTO data_qas (question, embeddings, file_id, created_by) VALUES ('${question}', ARRAY[${questionEmbeddings}], '${fileID}', '${userID}') returning id`;
+    // store the question & embeddings in data_qas table
+    const insertQuestionResult = await this.qaRepository.insertQuestion({
+      question,
+      questionEmbeddings,
+      fileID,
+      userID
+    })
+
 
     // get most relevant context from data_files embeddings
     const getMostRelevantContextQuery = `SELECT content, embeddings, embeddings <#> ARRAY[${questionEmbeddings}]::vector as similarity FROM data_file_embeddings
     WHERE file_id = $1 ORDER BY embeddings <#> ARRAY[${questionEmbeddings}]::vector LIMIT 5`;
 
-    const [insertQuestionResult, getMostRelevantContextResult] = await sqlTransaction([insertQuestionQuery, getMostRelevantContextQuery], [[], [fileID]]);
+    const [getMostRelevantContextResult] = await sqlTransaction([getMostRelevantContextQuery], [[fileID]]);
 
     // format the context
     const context = getMostRelevantContextResult.rows.map((row: any) => row.content).join("\n");
@@ -76,8 +87,7 @@ class QA {
     const aiAnswer = await getAIGeneratedAnswer(context, question);
 
     // store anser to DB
-    const insertAnswerQuery = `UPDATE data_qas SET answer = $1 WHERE id = $2`;
-    await sqlQuery({ sql: insertAnswerQuery, values: [aiAnswer, insertQuestionResult.rows[0].id] });
+    await this.qaRepository.saveAnswer(insertQuestionResult.id, aiAnswer)
 
     return { question, answer: aiAnswer };
   }
@@ -93,4 +103,4 @@ class QA {
   }
 };
 
-export const qa = new QA();
+export const qaService = new QAService();

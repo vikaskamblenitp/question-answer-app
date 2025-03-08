@@ -70,8 +70,8 @@ This project also includes a rate limiter based on the token bucket algorithm us
 
 - **PDF processing**: `/api/v1/documents`
 - **Processing status and details**: `/api/v1/documents/:documentID`
-- **Get answers for question on a file**: `/api/v1/qa/file/:fileID/answer`
-- **Get all Q&A history for a file**: `/api/v1/file/:fileID`
+- **ask question**: `/api/v1/qa/ask`
+- **Get all Q&A history for a file**: `/api/v1/qa/file/:fileID/history`
   
 Below endpoints are temporary and will be replaced with Google SSO login in future updates
 - **Login**: `/api/v1/auth/login`
