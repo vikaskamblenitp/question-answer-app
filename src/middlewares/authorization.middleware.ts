@@ -1,5 +1,5 @@
 import { ERROR_CODES } from "#constants";
-import { verifyJwtToken } from "#utils";
+import { JwtUtil } from "#utils";
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
@@ -24,7 +24,7 @@ export const validateUser = (req: Request, res: Response, next: NextFunction) =>
     return next(new AuthorizationMiddlewareError(`Token missing`, StatusCodes.UNAUTHORIZED, ERROR_CODES.UNAUTHENTICATED));
   }
 
-  const decodedData = verifyJwtToken(token);
+  const decodedData = JwtUtil.verifyJwtToken(token);
 
   res.locals.user = decodedData as Record<string, any>;
 

@@ -5,7 +5,7 @@ export class UserRepository {
     async createUser(data: RegisterUserSchema) {
         const result = await sqlQuery({
             sql: `INSERT INTO data_users(first_name, last_name, email) VALUES($1, $2, $3) RETURNING *`,
-            values: [...Object.values(data)]
+            values: [data.first_name, data.last_name, data.email]
         });
 
         return result.rows[0];

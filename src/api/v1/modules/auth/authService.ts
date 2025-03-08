@@ -1,11 +1,11 @@
-import { generateJwtToken } from "#utils";
 import { UsersApiError } from "./error";
 import { RegisterUserSchema } from "./schema";
 import { ERROR_CODES } from "#constants";
 import { StatusCodes } from "http-status-codes";
 import { UserRepository } from "./userRepository";
+import { JwtUtil } from "#utils";
 
-class UserService {
+class AuthService {
   private userRepository: UserRepository;
 
   constructor() {
@@ -26,7 +26,8 @@ class UserService {
       throw new UsersApiError(`User already exist with this email`, StatusCodes.INTERNAL_SERVER_ERROR, ERROR_CODES.INVALID);
     }
     const result = await this.userRepository.createUser(body);
-    return { user_id: result.id };
+    const accessToken = JwtUtil.generateJwtToken({ ...result, user_id: result.id });
+    return { ...result, access_token: accessToken };
   }
 
   /**
@@ -41,10 +42,10 @@ class UserService {
       throw new UsersApiError("User not found", StatusCodes.NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
 
-    const accessToken = generateJwtToken({ ...user, user_id: user.id });
+    const accessToken = JwtUtil.generateJwtToken({ ...user, user_id: user.id });
 
     return { ...user, access_token: accessToken };
   }
 }
 
-export const userService = new UserService();
+export const authService = new AuthService();

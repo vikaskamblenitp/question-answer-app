@@ -74,8 +74,8 @@ This project also includes a rate limiter based on the token bucket algorithm us
 - **Get all Q&A history for a file**: `/api/v1/file/:fileID`
   
 Below endpoints are temporary and will be replaced with Google SSO login in future updates
-- **Login**: `/api/v1/users/login`
-- **Register**: `/api/v1/users/register`.
+- **Login**: `/api/v1/auth/login`
+- **Register**: `/api/v1/auth/register`.
 
 
 ## Future Enhancements
