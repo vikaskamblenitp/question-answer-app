@@ -10,7 +10,7 @@ import { StatusCodes } from "http-status-codes";
 import { DocumentRepository } from "./documentRepository";
 import { IDocument } from "./types";
 
-class Documents {
+class DocumentService {
   private documentRepository: DocumentRepository;
 
   constructor() {
@@ -94,4 +94,4 @@ class Documents {
   }
 }
 
-export const documents = new Documents();
+export const documentService = new DocumentService();
