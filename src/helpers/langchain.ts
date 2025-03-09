@@ -1,11 +1,12 @@
 import { envConfig } from "#configs";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import {  } from "langchain/chat_models/universal";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { logger } from "./logger";
 
-const embeddings = new OpenAIEmbeddings({ apiKey: envConfig.OPEN_API_KEY, model: "text-embedding-ada-002" });
+const embeddings = new OpenAIEmbeddings({ apiKey: envConfig.OPENAI_API_KEY, model: "text-embedding-ada-002" });
 
 const textSplitter = new RecursiveCharacterTextSplitter({
   chunkSize: 500, // Maximum size of each chunk
@@ -15,7 +16,7 @@ const textSplitter = new RecursiveCharacterTextSplitter({
 const model = new ChatOpenAI({
   model: "gpt-4o",
   temperature: 0,
-  openAIApiKey: envConfig.OPEN_API_KEY
+  openAIApiKey: envConfig.OPENAI_API_KEY
 });
 
 export const generateChunkEmbeddings = async (fileContent: string): Promise<Array<{ content: string, embeddings: number[] }>> => {

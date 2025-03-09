@@ -1,12 +1,14 @@
-import { generateEmbeddings, getAIGeneratedAnswer } from "#helpers";
+import { generateEmbeddings } from "#helpers";
 import { localsUser } from "#types";
 import { StatusCodes } from "http-status-codes";
 import { QaApiError } from "./error";
 import { QuestionSchemaInput, GetAllQuestionAnswersParams, GetAllQuestionAnswersQuery } from "./schema";
-import { ERROR_CODES } from "#constants";
+import { ERROR_CODES, LLM_PROVIDERS } from "#constants";
 import { QARepository } from "./qaRepository";
 import { IQuestionAnswer } from "./types";
 import { DocumentRepository } from "../documents/documentRepository";
+import { LangchainPromptFactory } from "src/lib/llm/LangchainPromptFactory";
+import { PROMPTS } from "#constants/prompts.constants";
 
 class QAService {
   private qaRepository: QARepository;
@@ -84,12 +86,14 @@ class QAService {
     const context = getMostRelevantContextResult.map((row: any) => row.content).join("\n");
 
     // get answer from model
-    const aiAnswer = await getAIGeneratedAnswer(context, question);
+    const llmProcessor = LangchainPromptFactory.getPromptProcessor(LLM_PROVIDERS.OPENAI);
+    // eslint-disable-next-line new-cap
+    const answer = await llmProcessor.generateAnswer({ context, question, template: PROMPTS.QAPROMPT(context, question) });
 
     // store anser to DB
-    await this.qaRepository.saveAnswer(insertQuestionResult.id, aiAnswer)
+    await this.qaRepository.saveAnswer(insertQuestionResult.id, answer)
 
-    return { question, answer: aiAnswer };
+    return { question, answer };
   }
 
   async _checkFileExistsForUser(fileID: string, userID: string) {

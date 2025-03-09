@@ -42,7 +42,7 @@ This project also includes a rate limiter based on the token bucket algorithm us
     cp .env.example .env
     cp .env.example .env.local
     ```
-  - Update `.env` and `.env.local` with your configuration, including `CONFIG_OPEN_API_KEY`.
+  - Update `.env` and `.env.local` with your configuration, including `CONFIG_OPENAI_API_KEY`.
 
 3. **Run required containers for the project**:
   ```sh

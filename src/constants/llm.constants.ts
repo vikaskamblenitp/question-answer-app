@@ -1,0 +1,4 @@
+export const LLM_PROVIDERS = {
+    OPENAI: "OPENAI",
+    TOGETHERAI: "TOGETHERAI"
+}
